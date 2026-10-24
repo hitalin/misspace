@@ -88,12 +88,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
 
 // ========== 認証関連 ==========
 
-// MiAuth セッション
-export interface MiAuthSession {
-	token: string;
-	url: string;
-}
-
 // ログイン中のユーザー情報
 export interface AuthUser {
 	host: string;

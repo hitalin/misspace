@@ -315,6 +315,7 @@
 	// 認証関連
 	let authState = $derived(getAuthState());
 	let showLoginModal = $state(false);
+	let loginError = $state<string | null>(null); // MiAuth の戻り先で失敗したとき（?login_error=）
 	// 選択状態（URL連動）: サーバーの場合は "host.example"、エッジの場合は "hostA..hostB"
 	let selectedItem = $state<{ type: 'node' | 'edge'; value: string } | null>(null);
 
@@ -389,6 +390,7 @@
 
 			// URLクエリパラメータを優先して読み込み
 			const urlParams = new URLSearchParams(window.location.search);
+			loginError = urlParams.get('login_error');
 			const queryFilter = parseFilterFromQuery(urlParams);
 			const queryViewpoints = parseViewpointsFromQuery(urlParams);
 			const queryFocus = parseFocusFromQuery(urlParams);
@@ -528,6 +530,8 @@
 	});
 
 	let federationError = $state<string | null>(null);
+	// バナーに出すエラー（連合取得の失敗かログインの失敗）
+	let bannerError = $derived(federationError ?? loginError);
 
 	// 種サーバーから連合情報を取得（サーバーサイドAPI経由でCORSを回避）
 	async function fetchSeedFederations(seedHost: string, showError: boolean = true): Promise<FederationInfo[]> {
@@ -766,6 +770,7 @@
 
 	// 認証関連ハンドラー
 	function handleOpenLogin() {
+		loginError = null;
 		showLoginModal = true;
 	}
 
@@ -888,14 +893,14 @@
 			</div>
 			<!-- モバイル: グラフ -->
 			<div class="mobile-graph">
-				{#if federationError}
+				{#if bannerError}
 					<div class="error-banner">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="error-icon">
 							<circle cx="12" cy="12" r="10" />
 							<line x1="12" y1="8" x2="12" y2="12" />
 							<line x1="12" y1="16" x2="12.01" y2="16" />
 						</svg>
-						<span>{federationError}</span>
+						<span>{bannerError}</span>
 					</div>
 				{/if}
 				{#if isLoading}
@@ -964,14 +969,14 @@
 
 
 		<main>
-			{#if federationError}
+			{#if bannerError}
 				<div class="error-banner">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="error-icon">
 						<circle cx="12" cy="12" r="10" />
 						<line x1="12" y1="8" x2="12" y2="12" />
 						<line x1="12" y1="16" x2="12.01" y2="16" />
 					</svg>
-					<span>{federationError}</span>
+					<span>{bannerError}</span>
 				</div>
 			{/if}
 			{#if isLoading}

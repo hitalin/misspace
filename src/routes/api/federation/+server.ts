@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { parseSession, deleteAppSecret } from '$lib/auth';
+import { parseSession } from '$lib/auth';
 
 interface FederationInstance {
 	host: string;
@@ -82,8 +82,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				}
 
 				if (errorData?.error?.code === 'PERMISSION_DENIED') {
-					// アプリの権限不足 → キャッシュをクリアして再認証を促す
-					deleteAppSecret(seedServer);
+					// アプリの権限不足 → 再認証を促す
 					return json(
 						{
 							error: 'PERMISSION_DENIED',

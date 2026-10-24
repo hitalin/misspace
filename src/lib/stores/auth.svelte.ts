@@ -50,9 +50,6 @@ export async function startLogin(host: string): Promise<{ success: boolean; url?
 			return { success: false, error: data.error };
 		}
 
-		// ホストを保存（コールバックで使用）
-		localStorage.setItem('misspace_auth_host', host);
-
 		return { success: true, url: data.url };
 	} catch {
 		return { success: false, error: '通信エラーが発生しました' };
